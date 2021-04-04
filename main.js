@@ -2,7 +2,7 @@ const { SubmissionStream } = require("snoostorm");
 
 const Snoowrap = require("snoowrap");
 const fs = require("fs");
-const submissionFile = require("./submissionids.json");
+const submissionFile = require("./submissionIds.json");
 const config = require("./config.json");
 let submissionIds = submissionFile.ids;
 let counter = 0;
