@@ -1,0 +1,15 @@
+{
+  "name": "reddit-bot",
+  "version": "1.0.0",
+  "description": "dan",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "snoostorm": "^1.5.2",
+    "snoowrap": "^1.22.0"
+  }
+}

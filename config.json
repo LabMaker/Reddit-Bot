@@ -1,0 +1,37 @@
+{
+    "title": "Hey You need help?",
+    "pmBody": "EmmaRykes#0001 Add me on Discord",
+    "subreddits": [
+        "paidHomework",
+        "gradesretriever",
+        "hwforcash",
+        "domyhomeworkpaid",
+        "domyhomeworkforme101",
+        "OnlineClasses",
+        "domyhomeworkformee",
+        "HomeworkHelpWanted",
+        "examhelper"
+    ],
+    "forbiddenWords": [
+        "hire me",
+        "for hire",
+        "i will do your homework",
+        "[hire me]",
+        "scammer",
+        "[For Hire]",
+        "I have helped",
+        "Quick, Reliable and Affordable.",
+        "Vouches Available",
+        "24x7 Available",
+        "Vouching",
+        "Send your work their way!",
+        "I can help",
+        "great prices",
+        "I have a degree",
+        "Are you struggling",
+        "NEED HELP?",
+        "I WILL HELP YOU",
+        "I offer help",
+        "Writing Services"
+    ]
+}
