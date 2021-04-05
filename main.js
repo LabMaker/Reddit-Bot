@@ -54,7 +54,7 @@ function createEvent() {
       submissionFile.ids = submissionIds;
 
       fs.writeFileSync(
-        "submissionids.json",
+        "submissionIds.json",
         JSON.stringify(submissionFile, null, 1)
       );
 
