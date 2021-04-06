@@ -1,13 +1,13 @@
 const { SubmissionStream } = require("snoostorm");
 
 const Snoowrap = require("snoowrap");
-const fs = require("fs");
 const submissionFile = require("./submissionIds.json");
 const config = require("./config.json");
-let submissionIds = submissionFile.ids;
+const fetch = require("node-fetch");
+const axios = require("axios");
+let submissionIds = [];
 let counter = 0;
 let postCounter = 0;
-let postSubIds = [];
 
 const r = new Snoowrap({
   userAgent: "<platform:Firefox:0.0.1> (by /HomeworkHelperr/)",
@@ -16,6 +16,12 @@ const r = new Snoowrap({
   username: "HomeworkHelperr",
   password: "Bomb1234",
 });
+
+async function getSubmissions() {
+  let response = await fetch(config.domain + "Submissions");
+  let data = await response.json();
+  return data;
+}
 
 function createEvent() {
   let dynamicPollTime = 5000;
@@ -34,6 +40,11 @@ function createEvent() {
       console.log(counter, ":", item.subreddit.display_name);
       if (validId === undefined) {
         submissionIds.push(item.id);
+        axios
+          .post(config.domain + "ids", {
+            id: item.id,
+          })
+          .catch();
         counter++;
       } else {
         return;
@@ -50,13 +61,6 @@ function createEvent() {
           valid = false;
         }
       });
-
-      submissionFile.ids = submissionIds;
-
-      fs.writeFileSync(
-        "submissionIds.json",
-        JSON.stringify(submissionFile, null, 1)
-      );
 
       if (valid) {
         if (postCounter.toString().length != counter.toString().length) {
@@ -81,12 +85,17 @@ function createEvent() {
           subject: config.title,
           text: config.pmBody,
         });
+
         postCounter++;
       }
     });
   });
 }
 
-createEvent();
+getSubmissions().then((data) => {
+  submissionIds = data.ids;
+  console.log(submissionIds);
 
+  createEvent();
+});
 //function createStream(item, index) {}

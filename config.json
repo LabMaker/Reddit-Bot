@@ -1,5 +1,6 @@
 {
     "title": "Hey You need help?",
+    "domain": "https://reddit-api-bot.herokuapp.com/",
     "pmBody": "Pamela#0666 Add me on Discord",
     "subreddits": [
         "paidHomework",

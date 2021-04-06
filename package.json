@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
+    "node-fetch": "^2.6.1",
     "snoostorm": "^1.5.2",
     "snoowrap": "^1.22.0"
   }
