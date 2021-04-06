@@ -1,23 +1,29 @@
 const { SubmissionStream } = require("snoostorm");
 
 const Snoowrap = require("snoowrap");
-const config = require("./config.json");
 const fetch = require("node-fetch");
 const axios = require("axios");
 let submissionIds = [];
+let config = "";
 let counter = 0;
 let postCounter = 0;
+let domain = "https://reddit-api-bot.herokuapp.com/";
+const devMode = true;
+
+if (devMode) {
+  domain = "http://localhost:3000/";
+}
 
 const r = new Snoowrap({
   userAgent: "<platform:Firefox:0.0.1> (by /HomeworkHelperr/)",
-  clientId: "3Q99PaRizNBwUg",
-  clientSecret: "7pEEMYSKTK1Nc2gmIjTLfLbPco9uMA",
+  clientId: "5Y_yswLpUSAI-Q",
+  clientSecret: "gPQZMS95ic8cjTmN-qOEZ55Afjq6iA",
   username: "HomeworkHelperr",
-  password: "Bomb1234",
+  password: "xRJ$z2Q#D$y4#y",
 });
 
-async function getSubmissions() {
-  let response = await fetch(config.domain + "Submissions");
+async function getJson(uri) {
+  let response = await fetch(domain + uri);
   let data = await response.json();
   return data;
 }
@@ -40,7 +46,7 @@ function createEvent() {
       if (validId === undefined) {
         submissionIds.push(item.id);
         axios
-          .post(config.domain + "ids", {
+          .post(domain + "ids", {
             id: item.id,
           })
           .catch();
@@ -62,16 +68,6 @@ function createEvent() {
       });
 
       if (valid) {
-        if (postCounter.toString().length != counter.toString().length) {
-          let diff = counter.toString().length - postCounter.toString().length;
-          let newPostCounter = postCounter.toString();
-          for (let i = 0; i < diff; i++) {
-            newPostCounter = "0" + newPostCounter;
-          }
-
-          postCounter = parseInt(newPostCounter);
-        }
-
         console.log(
           postCounter,
           ":",
@@ -79,11 +75,13 @@ function createEvent() {
           ":",
           item.subreddit.display_name
         );
+
+        /*
         r.composeMessage({
           to: item.author,
           subject: config.title,
           text: config.pmBody,
-        });
+        }); */
 
         postCounter++;
       }
@@ -91,10 +89,22 @@ function createEvent() {
   });
 }
 
-getSubmissions().then((data) => {
+getJson("submissions").then((data) => {
   submissionIds = data.ids;
-  console.log(submissionIds);
+  getJson("config").then((dt) => {
+    config = dt;
+    console.log(config);
 
-  createEvent();
+    /*
+    r = new Snoowrap({
+      userAgent: config.userAgent,
+      clientId: config.clientID,
+      clientSecret: config.clientSecret,
+      username: config.username,
+      password: config.password,
+    }); */
+
+    createEvent();
+  });
 });
 //function createStream(item, index) {}
