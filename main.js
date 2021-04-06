@@ -14,13 +14,7 @@ if (devMode) {
   domain = "http://localhost:3000/";
 }
 
-const r = new Snoowrap({
-  userAgent: "<platform:Firefox:0.0.1> (by /HomeworkHelperr/)",
-  clientId: "5Y_yswLpUSAI-Q",
-  clientSecret: "gPQZMS95ic8cjTmN-qOEZ55Afjq6iA",
-  username: "HomeworkHelperr",
-  password: "xRJ$z2Q#D$y4#y",
-});
+let r;
 
 async function getJson(uri) {
   let response = await fetch(domain + uri);
@@ -76,12 +70,11 @@ function createEvent() {
           item.subreddit.display_name
         );
 
-        /*
         r.composeMessage({
           to: item.author,
           subject: config.title,
           text: config.pmBody,
-        }); */
+        });
 
         postCounter++;
       }
@@ -95,14 +88,13 @@ getJson("submissions").then((data) => {
     config = dt;
     console.log(config);
 
-    /*
     r = new Snoowrap({
       userAgent: config.userAgent,
       clientId: config.clientID,
       clientSecret: config.clientSecret,
       username: config.username,
       password: config.password,
-    }); */
+    });
 
     createEvent();
   });
