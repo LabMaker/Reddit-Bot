@@ -8,7 +8,7 @@ let config = "";
 let counter = 0;
 let postCounter = 0;
 let domain = "https://reddit-api-bot.herokuapp.com/";
-const devMode = false;
+const devMode = true;
 
 if (devMode) {
   domain = "http://localhost:3000/";
@@ -62,19 +62,27 @@ function createEvent() {
       });
 
       if (valid) {
-        console.log(
-          postCounter,
-          ":",
-          item.author.name,
-          ":",
-          item.subreddit.display_name
-        );
+        const { author } = item;
+        const redditName = item.subreddit.display_name;
+        const currentDate = new Date();
+        console.log(currentDate.toLocaleString());
+        console.log(`${postCounter} : ${author.name} : ${redditName}`);
 
         r.composeMessage({
           to: item.author,
           subject: config.title,
           text: config.pmBody,
         });
+
+        axios
+          .post(domain + "log", {
+            user: author.name,
+            message: config.pmBody,
+            subreddit: redditName,
+            id: item.id,
+            time: currentDate.toLocaleString(),
+          })
+          .catch();
 
         postCounter++;
       }
