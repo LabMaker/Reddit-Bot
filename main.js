@@ -1,7 +1,6 @@
 const { SubmissionStream } = require("snoostorm");
 
 const Snoowrap = require("snoowrap");
-const submissionFile = require("./submissionIds.json");
 const config = require("./config.json");
 const fetch = require("node-fetch");
 const axios = require("axios");
