@@ -7,14 +7,14 @@ let submissionIds = [];
 let config = "";
 let counter = 0;
 let postCounter = 0;
-let domain = "https://reddit-api-bot.herokuapp.com/";
+let domain = "https://reddit-api-bot.herokuapp.com/bot/";
 const devMode = false;
 
 if (devMode) {
-  domain = "http://localhost:3000/";
+  domain = "http://localhost:3000/bot/";
 }
 
-let r;
+let r; //Snoowrap Reddit Client
 
 async function getJson(uri) {
   let response = await fetch(domain + uri);
@@ -24,7 +24,8 @@ async function getJson(uri) {
 
 function createEvent() {
   let dynamicPollTime = 5000;
-  config.subreddits.forEach((subreddit) => {
+  subreddits = config.subreddits.split(",");
+  subreddits.forEach((subreddit) => {
     const stream = new SubmissionStream(r, {
       subreddit: subreddit,
       limit: 5,
@@ -35,70 +36,76 @@ function createEvent() {
     console.log("Created Event for", subreddit);
 
     stream.on("item", (item) => {
-      const validId = submissionIds.find((subId) => subId === item.id);
-      console.log(counter, ":", item.subreddit.display_name);
-      if (validId === undefined) {
-        submissionIds.push(item.id);
-        axios
-          .post(domain + "ids", {
-            id: item.id,
-          })
-          .catch();
-        counter++;
-      } else {
-        return;
-      }
-
-      let valid = true;
-
-      config.forbiddenWords.forEach((word) => {
-        if (item.title.toLowerCase().includes(word.toLowerCase())) {
-          valid = false;
-        }
-
-        if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
-          valid = false;
-        }
-      });
-
-      if (valid) {
-        const { author } = item;
-        const redditName = item.subreddit.display_name;
+      getJson("config").then((dt) => {
+        config = dt[0];
         const currentDate = new Date();
-        console.log(currentDate.toLocaleString());
-        console.log(`${postCounter} : ${author.name} : ${redditName}`);
+        didPm = false;
+        const validId = submissionIds.find((subId) => subId === item.id);
+        console.log(counter, ":", item.subreddit.display_name);
+        if (validId === undefined) {
+          submissionIds.push(item.id);
+          counter++;
+        } else {
+          return;
+        }
 
-        r.composeMessage({
-          to: item.author,
-          subject: config.title,
-          text: config.pmBody,
+        let valid = true;
+
+        forbiddenWords = config.forbiddenWords.split(",");
+        forbiddenWords.forEach((word) => {
+          if (item.title.toLowerCase().includes(word.toLowerCase())) {
+            valid = false;
+          }
+
+          if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
+            valid = false;
+          }
         });
 
-        axios
-          .post(domain + "log", {
-            user: author.name,
-            message: config.pmBody,
-            subreddit: redditName,
-            id: item.id,
-            time: currentDate.toLocaleString(),
-          })
-          .catch();
+        if (valid) {
+          const { author } = item;
+          const redditName = item.subreddit.display_name;
 
-        postCounter++;
-      }
+          console.log(
+            `${postCounter} : ${
+              author.name
+            } : ${redditName} : ${currentDate.toLocaleString()} : ${
+              config.pmBody
+            }`
+          );
+          didPm = true;
+          r.composeMessage({
+            to: item.author,
+            subject: config.title,
+            text: config.pmBody,
+          });
+
+          postCounter++;
+        }
+
+        axios.post(domain + "createLog", {
+          username: item.author.name,
+          message: config.pmBody,
+          subreddit: item.subreddit.display_name,
+          time: currentDate.toLocaleString(),
+          subId: item.id,
+          pm: didPm,
+        });
+      });
     });
   });
 }
 
 getJson("submissions").then((data) => {
-  submissionIds = data.ids;
+  submissionIds = data;
+  console.log(submissionIds);
   getJson("config").then((dt) => {
-    config = dt;
+    config = dt[0];
     console.log(config);
 
     r = new Snoowrap({
       userAgent: config.userAgent,
-      clientId: config.clientID,
+      clientId: config.clientId,
       clientSecret: config.clientSecret,
       username: config.username,
       password: config.password,
