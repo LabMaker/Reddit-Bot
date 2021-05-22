@@ -74,12 +74,12 @@ function createEvent() {
             }`
           );
           didPm = true;
-          /*
+
           r.composeMessage({
             to: item.author,
             subject: config.title,
             text: config.pmBody,
-          }); */
+          });
 
           postCounter++;
         }
@@ -88,7 +88,7 @@ function createEvent() {
           username: item.author.name,
           message: config.pmBody,
           subreddit: item.subreddit.display_name,
-          time: date.toLocaleString({ timeZone: "BST" }),
+          time: currentDate.toLocaleString({ timeZone: "BST" }),
           subId: item.id,
           pm: didPm,
         });
