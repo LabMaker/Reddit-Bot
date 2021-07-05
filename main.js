@@ -66,22 +66,24 @@ function createEvent() {
           const { author } = item;
           const redditName = item.subreddit.display_name;
 
-          console.log(
-            `${postCounter} : ${
-              author.name
-            } : ${redditName} : ${currentDate.toLocaleString()} : ${
-              config.pmBody
-            }`
-          );
-          didPm = true;
+          setTimeout(function () {
+            console.log(
+              `${postCounter} : ${
+                author.name
+              } : ${redditName} : ${currentDate.toLocaleString()} : ${
+                config.pmBody
+              }`
+            );
+            r.composeMessage({
+              to: item.author,
+              subject: config.title,
+              text: config.pmBody,
+            });
 
-          r.composeMessage({
-            to: item.author,
-            subject: config.title,
-            text: config.pmBody,
-          });
+            didPm = true;
 
-          postCounter++;
+            postCounter++;
+          }, 60000);
         }
 
         axios.post(domain + "createLog", {
