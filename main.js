@@ -61,12 +61,11 @@ function createEvent() {
             valid = false;
           }
         });
+        setTimeout(function () {
+          if (valid) {
+            const { author } = item;
+            const redditName = item.subreddit.display_name;
 
-        if (valid) {
-          const { author } = item;
-          const redditName = item.subreddit.display_name;
-
-          setTimeout(function () {
             console.log(
               `${postCounter} : ${
                 author.name
@@ -83,17 +82,17 @@ function createEvent() {
             didPm = true;
 
             postCounter++;
-          }, 60000);
-        }
+          }
 
-        axios.post(domain + "createLog", {
-          username: item.author.name,
-          message: config.pmBody,
-          subreddit: item.subreddit.display_name,
-          time: currentDate.toLocaleString({ timeZone: "BST" }),
-          subId: item.id,
-          pm: didPm,
-        });
+          axios.post(domain + "createLog", {
+            username: item.author.name,
+            message: config.pmBody,
+            subreddit: item.subreddit.display_name,
+            time: currentDate.toLocaleString({ timeZone: "BST" }),
+            subId: item.id,
+            pm: didPm,
+          });
+        }, 60000);
       });
     });
   });
