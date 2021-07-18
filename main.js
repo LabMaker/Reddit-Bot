@@ -8,7 +8,7 @@ let config = "";
 let counter = 0;
 let postCounter = 0;
 let domain = "https://reddit-api-bot2.herokuapp.com/bot/";
-const devMode = false;
+const devMode = true;
 
 if (devMode) {
   domain = "http://localhost:3000/bot/";
