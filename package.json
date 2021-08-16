@@ -1,18 +1,26 @@
 {
-  "name": "reddit-bot",
+  "name": "labmaker-redditbot",
   "version": "1.0.0",
-  "description": "dan",
-  "main": "index.js",
+  "description": "",
+  "main": "lib/index.js",
   "scripts": {
-    "start": "node main.js"
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn ./src/index.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanyaalA/RedditBot.git"
+  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.21.1",
-    "labmaker-api-wrapper": "^1.1.2",
-    "node-fetch": "^2.6.1",
-    "snoostorm": "^1.5.2",
-    "snoowrap": "^1.22.0"
+  "bugs": {
+    "url": "https://github.com/DanyaalA/RedditBot/issues"
+  },
+  "homepage": "https://github.com/DanyaalA/RedditBot#readme",
+  "devDependencies": {
+    "ts-node-dev": "^1.1.8",
+    "tslib": "^2.3.1",
+    "typescript": "^4.3.5"
   }
 }
