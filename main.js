@@ -1,17 +1,16 @@
-const { SubmissionStream } = require("snoostorm");
-
-const Snoowrap = require("snoowrap");
-const fetch = require("node-fetch");
-const axios = require("axios");
+const { SubmissionStream } = require('snoostorm');
+const Snoowrap = require('snoowrap');
+const fetch = require('node-fetch');
+const axios = require('axios');
 let submissionIds = [];
-let config = "";
+let config = '';
 let counter = 0;
 let postCounter = 0;
-let domain = "https://reddit-api-bot2.herokuapp.com/bot/";
-const devMode = false;
+let domain = 'https://reddit-api-bot2.herokuapp.com/bot/';
+const devMode = true;
 
 if (devMode) {
-  domain = "http://localhost:3000/bot/";
+  domain = 'http://localhost:3000/bot/';
 }
 
 let r; //Snoowrap Reddit Client
@@ -24,7 +23,7 @@ async function getJson(uri) {
 
 function createEvent() {
   let dynamicPollTime = 5000;
-  subreddits = config.subreddits.split(",");
+  subreddits = config.subreddits.split(',');
   subreddits.forEach((subreddit) => {
     const stream = new SubmissionStream(r, {
       subreddit: subreddit,
@@ -33,15 +32,15 @@ function createEvent() {
     });
 
     dynamicPollTime += 5000;
-    console.log("Created Event for", subreddit);
+    console.log('Created Event for', subreddit);
 
-    stream.on("item", (item) => {
-      getJson("config").then((dt) => {
+    stream.on('item', (item) => {
+      getJson('config').then((dt) => {
         config = dt[0];
         const currentDate = new Date();
         didPm = false;
         const validId = submissionIds.find((subId) => subId === item.id);
-        console.log(counter, ":", item.subreddit.display_name);
+        console.log(counter, ':', item.subreddit.display_name);
         if (validId === undefined) {
           submissionIds.push(item.id);
           counter++;
@@ -51,7 +50,7 @@ function createEvent() {
 
         let valid = true;
 
-        forbiddenWords = config.forbiddenWords.split(",");
+        forbiddenWords = config.forbiddenWords.split(',');
         forbiddenWords.forEach((word) => {
           if (item.title.toLowerCase().includes(word.toLowerCase())) {
             valid = false;
@@ -84,11 +83,11 @@ function createEvent() {
             postCounter++;
           }
 
-          axios.post(domain + "createLog", {
+          axios.post(domain + 'createLog', {
             username: item.author.name,
             message: config.pmBody,
             subreddit: item.subreddit.display_name,
-            time: currentDate.toLocaleString({ timeZone: "BST" }),
+            time: currentDate.toLocaleString({ timeZone: 'BST' }),
             subId: item.id,
             pm: didPm,
           });
@@ -98,10 +97,10 @@ function createEvent() {
   });
 }
 
-getJson("submissions").then((data) => {
+getJson('submissions').then((data) => {
   submissionIds = data;
   console.log(submissionIds);
-  getJson("config").then((dt) => {
+  getJson('config').then((dt) => {
     config = dt[0];
     console.log(config);
 
