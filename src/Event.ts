@@ -1,16 +1,18 @@
-import { RedditConfigAPI } from 'labmaker-api-wrapper';
+import { RedditConfigAPI, LogAPI, LogDto } from 'labmaker-api-wrapper';
 import { SubmissionStream } from 'snoostorm';
 import Snoowrap from 'snoowrap';
 
 const configAPI = new RedditConfigAPI();
+const logAPI = new LogAPI();
+let submissionIds = [];
 
 export async function createEvent(client: Snoowrap, id: string) {
   let dynamicPollTime = 5000;
-  let submissionIds = [];
   let counter = 0;
   let postCounter = 0;
   const config = await configAPI.getOne(id);
-
+  submissionIds = await logAPI.getSubmissionIds(id);
+  console.log(submissionIds);
   config.subreddits.forEach((subreddit) => {
     const stream = new SubmissionStream(client, {
       subreddit: subreddit,
@@ -23,7 +25,6 @@ export async function createEvent(client: Snoowrap, id: string) {
 
     stream.on('item', async (item) => {
       const newConfig = await configAPI.getOne(id);
-      const currentDate = new Date();
       let didPm = false;
       const validId = submissionIds.find((subId) => subId === item.id);
       console.log(counter, ':', item.subreddit.display_name);
@@ -53,11 +54,7 @@ export async function createEvent(client: Snoowrap, id: string) {
           const redditName = item.subreddit.display_name;
 
           console.log(
-            `${postCounter} : ${
-              author.name
-            } : ${redditName} : ${currentDate.toLocaleString()} : ${
-              newConfig.pmBody
-            }`
+            `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
           );
 
           client.composeMessage({
@@ -71,16 +68,18 @@ export async function createEvent(client: Snoowrap, id: string) {
           postCounter++;
         }
 
-        //Add Logging Later
-        // axios.post(domain + 'createLog', {
-        //   username: item.author.name,
-        //   message: config.pmBody,
-        //   subreddit: item.subreddit.display_name,
-        //   time: currentDate.toLocaleString({ timeZone: 'BST' }),
-        //   subId: item.id,
-        //   pm: didPm,
-        // });
-      }, 60000);
+        const log: LogDto = {
+          _id: '0',
+          nodeId: id,
+          username: item.author.name,
+          message: config.pmBody,
+          subreddit: item.subreddit.display_name,
+          subId: item.id,
+          pm: didPm,
+        };
+
+        logAPI.create(log);
+      }, newConfig.delay);
     });
   });
 }

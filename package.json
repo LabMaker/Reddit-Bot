@@ -18,15 +18,15 @@
     "url": "https://github.com/DanyaalA/RedditBot/issues"
   },
   "homepage": "https://github.com/DanyaalA/RedditBot#readme",
+  "dependencies": {
+    "@types/snoowrap": "^1.19.0",
+    "labmaker-api-wrapper": "^1.2.3",
+    "snoostorm": "^1.5.2",
+    "snoowrap": "^1.23.0"
+  },
   "devDependencies": {
     "ts-node-dev": "^1.1.8",
     "tslib": "^2.3.1",
     "typescript": "^4.3.5"
-  },
-  "dependencies": {
-    "@types/snoowrap": "^1.19.0",
-    "labmaker-api-wrapper": "^1.1.4",
-    "snoostorm": "^1.5.2",
-    "snoowrap": "^1.23.0"
   }
 }
