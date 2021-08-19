@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev --respawn ./src/index.ts"
+    "dev": "ts-node-dev --respawn ./src/index.ts",
+    "start": "node ./lib/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,7 @@
   "homepage": "https://github.com/DanyaalA/RedditBot#readme",
   "dependencies": {
     "@types/snoowrap": "^1.19.0",
-    "labmaker-api-wrapper": "^1.2.3",
+    "labmaker-api-wrapper": "^1.4.8",
     "snoostorm": "^1.5.2",
     "snoowrap": "^1.23.0"
   },

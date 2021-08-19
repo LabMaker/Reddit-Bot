@@ -4,4 +4,4 @@
  WORKDIR /usr/src/app
  COPY . .
  RUN node install --production
- CMD ["node", "main.js"]
+ CMD ["node", "./lib/index.js"]

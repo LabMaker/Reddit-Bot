@@ -38,15 +38,17 @@ export async function createEvent(client: Snoowrap, id: string) {
 
       let valid = true;
 
-      newConfig.forbiddenWords.forEach((word) => {
-        if (item.title.toLowerCase().includes(word.toLowerCase())) {
-          valid = false;
-        }
+      await Promise.all(
+        newConfig.forbiddenWords.map((word) => {
+          if (item.title.toLowerCase().includes(word.toLowerCase())) {
+            valid = false;
+          }
 
-        if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
-          valid = false;
-        }
-      });
+          if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
+            valid = false;
+          }
+        })
+      );
 
       setTimeout(function () {
         if (valid) {
