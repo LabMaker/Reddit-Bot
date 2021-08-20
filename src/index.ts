@@ -1,4 +1,3 @@
-import { SubmissionStream } from 'snoostorm';
 import { RedditConfigAPI } from 'labmaker-api-wrapper';
 import { createEvent } from './Event';
 import Snoowrap from 'snoowrap';
