@@ -35,7 +35,6 @@ export async function createEvent(client: Snoowrap, id: string) {
         return;
       }
 
-      const newConfig = await configAPI.getOne(id);
       let didPm = false;
       const validId = submissionIds.find((subId) => subId === item.id);
       console.log(counter, ':', item.subreddit.display_name);
@@ -48,6 +47,8 @@ export async function createEvent(client: Snoowrap, id: string) {
       }
 
       let valid = true;
+
+      const newConfig = await configAPI.getOne(id);
 
       await Promise.all(
         newConfig.forbiddenWords.map((word) => {
