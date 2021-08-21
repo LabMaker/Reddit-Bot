@@ -61,15 +61,11 @@ export async function createEvent(client: Snoowrap, id: string) {
         })
       );
 
-      try {
-        setTimeout(async function () {
+      setTimeout(async function () {
+        try {
           if (valid) {
             const { author } = item;
             const redditName = item.subreddit.display_name;
-
-            console.log(
-              `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
-            );
 
             await client.composeMessage({
               to: item.author,
@@ -77,26 +73,28 @@ export async function createEvent(client: Snoowrap, id: string) {
               text: newConfig.pmBody,
             });
 
-            didPm = true;
+            console.log(
+              `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
+            );
 
+            didPm = true;
             postCounter++;
           }
+        } catch (err) {
+          console.error(`Error Occured ${err.message}`);
+        }
 
-          const log: LogDto = {
-            _id: '0',
-            nodeId: id,
-            username: item.author.name,
-            message: config.pmBody,
-            subreddit: item.subreddit.display_name,
-            subId: item.id,
-            pm: didPm,
-          };
-
-          LabmakerAPI.Log.create(log);
-        }, newConfig.delay * 1000);
-      } catch (err) {
-        console.error(`Error Occured ${err.message}`);
-      }
+        const log: LogDto = {
+          _id: '0',
+          nodeId: id,
+          username: item.author.name,
+          message: config.pmBody,
+          subreddit: item.subreddit.display_name,
+          subId: item.id,
+          pm: didPm,
+        };
+        LabmakerAPI.Log.create(log);
+      }, newConfig.delay * 1000);
     });
   });
 }
