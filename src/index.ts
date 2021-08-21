@@ -20,6 +20,7 @@ const id = '3630aeb2-38c5-4c36-a0d5-5c2d95fa35b0';
     client.config({
       continueAfterRatelimitError: true,
       requestDelay: 1000,
+      debug: true,
     });
 
     createEvent(client, id);
