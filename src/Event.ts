@@ -1,35 +1,44 @@
-import { RedditConfigAPI, LogAPI, LogDto } from 'labmaker-api-wrapper';
+import { LogDto } from 'labmaker-api-wrapper';
 import { SubmissionStream } from 'snoostorm';
 import Snoowrap from 'snoowrap';
+import LabmakerAPI from './APIHandler';
 
-const configAPI = new RedditConfigAPI();
-const logAPI = new LogAPI();
 let submissionIds = [];
-
+let counter = 0;
+let postCounter = 0;
 export async function createEvent(client: Snoowrap, id: string) {
   let dynamicPollTime = 5000;
-  let counter = 0;
-  let postCounter = 0;
-  const config = await configAPI.getOne(id);
-  submissionIds = await logAPI.getSubmissionIds(id);
-  console.log(submissionIds);
+
+  const config = await LabmakerAPI.Reddit.getOne(id);
+  submissionIds = await LabmakerAPI.Log.getSubmissionIds(id);
+
   config.subreddits.forEach((subreddit) => {
     const stream = new SubmissionStream(client, {
-      subreddit: subreddit,
+      subreddit,
       limit: 5,
       pollTime: dynamicPollTime,
     });
 
     dynamicPollTime += 5000;
-    console.log('Created Event for', subreddit);
+    console.log(
+      `Created Event for ${subreddit} with a delay of ${dynamicPollTime}`
+    );
 
     stream.on('item', async (item) => {
-      const newConfig = await configAPI.getOne(id);
+      const date = new Date(item.created * 1000);
+      const dateNow = new Date();
+      const timeBetween = dateNow.getTime() - date.getTime();
+      const hourDiff = timeBetween / (1000 * 3600);
+
+      if (hourDiff > 24) {
+        return;
+      }
+
       let didPm = false;
       const validId = submissionIds.find((subId) => subId === item.id);
       console.log(counter, ':', item.subreddit.display_name);
 
-      if (validId === undefined) {
+      if (validId === undefined || validId === null) {
         submissionIds.push(item.id);
         counter++;
       } else {
@@ -37,6 +46,8 @@ export async function createEvent(client: Snoowrap, id: string) {
       }
 
       let valid = true;
+
+      const newConfig = await LabmakerAPI.Reddit.getOne(id);
 
       await Promise.all(
         newConfig.forbiddenWords.map((word) => {
@@ -50,38 +61,42 @@ export async function createEvent(client: Snoowrap, id: string) {
         })
       );
 
-      setTimeout(function () {
-        if (valid) {
-          const { author } = item;
-          const redditName = item.subreddit.display_name;
+      try {
+        setTimeout(async function () {
+          if (valid) {
+            const { author } = item;
+            const redditName = item.subreddit.display_name;
 
-          console.log(
-            `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
-          );
+            console.log(
+              `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
+            );
 
-          client.composeMessage({
-            to: item.author,
-            subject: newConfig.title,
-            text: newConfig.pmBody,
-          });
+            await client.composeMessage({
+              to: item.author,
+              subject: newConfig.title,
+              text: newConfig.pmBody,
+            });
 
-          didPm = true;
+            didPm = true;
 
-          postCounter++;
-        }
+            postCounter++;
+          }
 
-        const log: LogDto = {
-          _id: '0',
-          nodeId: id,
-          username: item.author.name,
-          message: config.pmBody,
-          subreddit: item.subreddit.display_name,
-          subId: item.id,
-          pm: didPm,
-        };
+          const log: LogDto = {
+            _id: '0',
+            nodeId: id,
+            username: item.author.name,
+            message: config.pmBody,
+            subreddit: item.subreddit.display_name,
+            subId: item.id,
+            pm: didPm,
+          };
 
-        logAPI.create(log);
-      }, newConfig.delay);
+          LabmakerAPI.Log.create(log);
+        }, newConfig.delay * 1000);
+      } catch (err) {
+        console.error(`Error Occured ${err.message}`);
+      }
     });
   });
 }
