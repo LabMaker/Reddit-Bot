@@ -53,10 +53,6 @@ export async function createEvent(client: Snoowrap, id: string) {
 
       const newConfig = await LabmakerAPI.Reddit.getOne(id);
 
-      if (item.author.is_mod) {
-        valid = false;
-      }
-
       await Promise.all(
         newConfig.forbiddenWords.map((word) => {
           if (item.title.toLowerCase().includes(word.toLowerCase())) {
