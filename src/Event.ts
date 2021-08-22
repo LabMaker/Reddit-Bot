@@ -4,8 +4,15 @@ import Snoowrap from 'snoowrap';
 import LabmakerAPI from './APIHandler';
 
 let submissionIds = [];
+let localLogs: LocalLog[] = [];
 let counter = 0;
 let postCounter = 0;
+
+type LocalLog = {
+  username: string;
+  createdAt: Date;
+};
+
 export async function createEvent(client: Snoowrap, id: string) {
   const config = await LabmakerAPI.Reddit.getOne(id);
   submissionIds = await LabmakerAPI.Log.getSubmissionIds(id);
@@ -24,8 +31,8 @@ export async function createEvent(client: Snoowrap, id: string) {
     stream.on('item', async (item) => {
       const date = new Date(item.created * 1000);
       const dateNow = new Date();
-      const timeBetween = dateNow.getTime() - date.getTime();
-      const hourDiff = timeBetween / (1000 * 3600);
+      const msBetween = dateNow.getTime() - date.getTime();
+      const hourDiff = msBetween / (1000 * 3600);
 
       if (hourDiff > 24) {
         return;
@@ -46,6 +53,10 @@ export async function createEvent(client: Snoowrap, id: string) {
 
       const newConfig = await LabmakerAPI.Reddit.getOne(id);
 
+      if (item.author.is_mod) {
+        valid = false;
+      }
+
       await Promise.all(
         newConfig.forbiddenWords.map((word) => {
           if (item.title.toLowerCase().includes(word.toLowerCase())) {
@@ -57,6 +68,30 @@ export async function createEvent(client: Snoowrap, id: string) {
           }
         })
       );
+
+      if (localLogs.length > 0 && valid) {
+        localLogs.forEach((log) => {
+          if (log.username === item.author.name) {
+            const msDifference = date.getTime() - log.createdAt.getTime();
+            const minuteDiff = msDifference / (1000 * 60);
+            if (minuteDiff < 60) {
+              //Dont RePM within 60Mins
+              valid = false;
+              return;
+            }
+          }
+        });
+      }
+
+      if (localLogs.length > 300) {
+        localLogs.splice(0, 150); //Removes first 150 Logs as they should be useless
+      }
+
+      const newLocalLog: LocalLog = {
+        username: item.author.name,
+        createdAt: new Date(),
+      };
+      localLogs.push(newLocalLog);
 
       setTimeout(async function () {
         try {
