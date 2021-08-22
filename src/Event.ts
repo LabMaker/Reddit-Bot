@@ -33,14 +33,15 @@ export async function createEvent(client: Snoowrap, id: string) {
       const dateNow = new Date();
       const msBetween = dateNow.getTime() - date.getTime();
       const hourDiff = msBetween / (1000 * 3600);
-
+      const { name } = item.author;
+      const { display_name } = item.subreddit;
       if (hourDiff > 24) {
         return;
       }
 
       let didPm = false;
       const validId = submissionIds.find((subId) => subId === item.id);
-      console.log(counter, ':', item.subreddit.display_name);
+      console.log(counter, ':', display_name);
 
       if (validId === undefined || validId === null) {
         submissionIds.push(item.id);
@@ -52,6 +53,15 @@ export async function createEvent(client: Snoowrap, id: string) {
       let valid = true;
 
       const newConfig = await LabmakerAPI.Reddit.getOne(id);
+
+      if (
+        newConfig.blockedUsers.find(
+          (u) => u.toLowerCase() === name.toLowerCase()
+        )
+      ) {
+        console.log('User Is Blocked');
+        valid = false;
+      }
 
       await Promise.all(
         newConfig.forbiddenWords.map((word) => {
@@ -67,7 +77,7 @@ export async function createEvent(client: Snoowrap, id: string) {
 
       if (localLogs.length > 0 && valid) {
         localLogs.forEach((log) => {
-          if (log.username === item.author.name) {
+          if (log.username === name) {
             const msDifference = date.getTime() - log.createdAt.getTime();
             const minuteDiff = msDifference / (1000 * 60);
             if (minuteDiff < 60) {
@@ -84,7 +94,7 @@ export async function createEvent(client: Snoowrap, id: string) {
       }
 
       const newLocalLog: LocalLog = {
-        username: item.author.name,
+        username: name,
         createdAt: new Date(),
       };
       localLogs.push(newLocalLog);
@@ -92,9 +102,6 @@ export async function createEvent(client: Snoowrap, id: string) {
       setTimeout(async function () {
         try {
           if (valid) {
-            const { author } = item;
-            const redditName = item.subreddit.display_name;
-
             await client.composeMessage({
               to: item.author,
               subject: newConfig.title,
@@ -102,7 +109,7 @@ export async function createEvent(client: Snoowrap, id: string) {
             });
 
             console.log(
-              `${postCounter} : ${author.name} : ${redditName}  : ${newConfig.pmBody}`
+              `${postCounter} : ${name} : ${display_name}  : ${newConfig.pmBody}`
             );
 
             didPm = true;
@@ -115,9 +122,9 @@ export async function createEvent(client: Snoowrap, id: string) {
         const log: LogDto = {
           _id: '0',
           nodeId: id,
-          username: item.author.name,
+          username: name,
           message: config.pmBody,
-          subreddit: item.subreddit.display_name,
+          subreddit: display_name,
           subId: item.id,
           pm: didPm,
         };
