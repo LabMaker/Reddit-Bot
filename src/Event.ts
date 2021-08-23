@@ -53,6 +53,7 @@ export async function createEvent(client: Snoowrap, id: string) {
       let valid = true;
 
       const newConfig = await LabmakerAPI.Reddit.getOne(id);
+      console.log(newConfig.pmBody);
 
       if (
         newConfig.blockedUsers.find(
@@ -123,11 +124,12 @@ export async function createEvent(client: Snoowrap, id: string) {
           _id: '0',
           nodeId: id,
           username: name,
-          message: config.pmBody,
+          message: newConfig.pmBody,
           subreddit: display_name,
           subId: item.id,
           pm: didPm,
         };
+
         LabmakerAPI.Log.create(log);
       }, newConfig.delay * 1000);
     });
