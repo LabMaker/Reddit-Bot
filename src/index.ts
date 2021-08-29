@@ -9,7 +9,7 @@ const id = '3630aeb2-38c5-4c36-a0d5-5c2d95fa35b0';
   try {
     const config = await LabmakerAPI.Reddit.getOne(id);
     console.log(config);
-    
+
     const client = new Snoowrap({
       userAgent: config.userAgent,
       clientId: config.clientId,
@@ -20,8 +20,9 @@ const id = '3630aeb2-38c5-4c36-a0d5-5c2d95fa35b0';
 
     client.config({
       continueAfterRatelimitError: true,
-      requestDelay: 1000,
+      requestDelay: 1001,
       debug: false,
+      maxRetryAttempts: 5,
     });
 
     createEvent(client, id);

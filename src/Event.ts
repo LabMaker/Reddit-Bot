@@ -53,7 +53,6 @@ export async function createEvent(client: Snoowrap, id: string) {
       let valid = true;
 
       const newConfig = await LabmakerAPI.Reddit.getOne(id);
-      console.log(newConfig.pmBody);
 
       if (
         newConfig.blockedUsers.find(

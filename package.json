@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/DanyaalA/RedditBot#readme",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "labmaker-api-wrapper": "^1.6.9",
     "snoostorm": "^1.5.2",
     "snoowrap": "^1.23.0"
