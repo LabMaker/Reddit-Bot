@@ -1,21 +1,21 @@
-import { LogDto } from 'labmaker-api-wrapper';
+import { LogDto, RedditConfigDto } from 'labmaker-api-wrapper';
 import { SubmissionStream } from 'snoostorm';
 import Snoowrap from 'snoowrap';
-import LabmakerAPI from './APIHandler';
-
-let submissionIds = [];
-let localLogs: LocalLog[] = [];
-let counter = 0;
-let postCounter = 0;
+import { Labmaker } from './APIHandler';
 
 type LocalLog = {
   username: string;
   createdAt: Date;
 };
 
-export async function createEvent(client: Snoowrap, id: string) {
-  const config = await LabmakerAPI.Reddit.getOne(id);
-  submissionIds = await LabmakerAPI.Log.getSubmissionIds(id);
+export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
+  const id = config._id;
+  let localLogs: LocalLog[] = [];
+  let submissionIds = [];
+  let counter = 0;
+  let postCounter = 0;
+
+  submissionIds = await Labmaker.Log.getSubmissionIds(id);
 
   const delay = CalculateMinimumDelay(config.subreddits.length, 5) * 3; //Minimum Delay is too little to poll anyways
 
@@ -26,7 +26,9 @@ export async function createEvent(client: Snoowrap, id: string) {
       pollTime: delay,
     });
 
-    console.log(`Created Event for ${subreddit} with a delay of ${delay}`);
+    console.log(
+      `Created Event for ${subreddit} with a delay of ${delay} for user ${config.username}`
+    );
 
     stream.on('item', async (item) => {
       const date = new Date(item.created * 1000);
@@ -52,7 +54,7 @@ export async function createEvent(client: Snoowrap, id: string) {
 
       let valid = true;
 
-      const newConfig = await LabmakerAPI.Reddit.getOne(id);
+      const newConfig = await Labmaker.Reddit.getOne(id);
 
       if (
         newConfig.blockedUsers.find(
@@ -129,7 +131,7 @@ export async function createEvent(client: Snoowrap, id: string) {
           pm: didPm,
         };
 
-        LabmakerAPI.Log.create(log);
+        Labmaker.Log.create(log);
       }, newConfig.delay * 1000);
     });
   });
