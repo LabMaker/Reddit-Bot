@@ -56,13 +56,15 @@ export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
 
       const newConfig = await Labmaker.Reddit.getOne(id);
 
-      if (
-        newConfig.blockedUsers.find(
-          (u) => u.toLowerCase() === name.toLowerCase()
-        )
-      ) {
-        console.log('User Is Blocked');
-        valid = false;
+      if (newConfig.blockedUsers) {
+        if (
+          newConfig.blockedUsers.find(
+            (u) => u.toLowerCase() === name.toLowerCase()
+          )
+        ) {
+          console.log('User Is Blocked');
+          valid = false;
+        }
       }
 
       await Promise.all(
