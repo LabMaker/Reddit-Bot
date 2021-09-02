@@ -31,110 +31,115 @@ export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
     );
 
     stream.on('item', async (item) => {
-      const date = new Date(item.created * 1000);
-      const dateNow = new Date();
-      const msBetween = dateNow.getTime() - date.getTime();
-      const hourDiff = msBetween / (1000 * 3600);
-      const { name } = item.author;
-      const { display_name } = item.subreddit;
-      if (hourDiff > 24) {
-        return;
-      }
-
-      let didPm = false;
-      const validId = submissionIds.find((subId) => subId === item.id);
-      console.log(counter, ':', display_name);
-
-      if (validId === undefined || validId === null) {
-        submissionIds.push(item.id);
-        counter++;
-      } else {
-        return;
-      }
-
-      let valid = true;
-
-      const newConfig = await Labmaker.Reddit.getOne(id);
-
-      if (newConfig.blockedUsers) {
-        if (
-          newConfig.blockedUsers.find(
-            (u) => u.toLowerCase() === name.toLowerCase()
-          )
-        ) {
-          console.log('User Is Blocked');
-          valid = false;
+      try {
+        const date = new Date(item.created * 1000);
+        const dateNow = new Date();
+        const msBetween = dateNow.getTime() - date.getTime();
+        const hourDiff = msBetween / (1000 * 3600);
+        const { name } = item.author;
+        const { display_name } = item.subreddit;
+        if (hourDiff > 24) {
+          return;
         }
-      }
 
-      await Promise.all(
-        newConfig.forbiddenWords.map((word) => {
-          if (item.title.toLowerCase().includes(word.toLowerCase())) {
+        let didPm = false;
+        const validId = submissionIds.find((subId) => subId === item.id);
+        console.log(counter, ':', display_name);
+
+        if (validId === undefined || validId === null) {
+          submissionIds.push(item.id);
+          counter++;
+        } else {
+          return;
+        }
+
+        let valid = true;
+
+        const newConfig = await Labmaker.Reddit.getOne(id);
+
+        if (newConfig.blockedUsers) {
+          if (
+            newConfig.blockedUsers.find(
+              (u) => u.toLowerCase() === name.toLowerCase()
+            )
+          ) {
+            console.log('User Is Blocked');
             valid = false;
           }
+        }
 
-          if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
-            valid = false;
-          }
-        })
-      );
-
-      if (localLogs.length > 0 && valid) {
-        localLogs.forEach((log) => {
-          if (log.username === name) {
-            const msDifference = date.getTime() - log.createdAt.getTime();
-            const minuteDiff = msDifference / (1000 * 60);
-            if (minuteDiff < 60) {
-              //Dont RePM within 60Mins
+        await Promise.all(
+          newConfig.forbiddenWords.map((word) => {
+            if (item.title.toLowerCase().includes(word.toLowerCase())) {
               valid = false;
-              return;
             }
-          }
-        });
-      }
 
-      if (localLogs.length > 300) {
-        localLogs.splice(0, 150); //Removes first 150 Logs as they should be useless
-      }
+            if (item.selftext.toLowerCase().includes(word.toLowerCase())) {
+              valid = false;
+            }
+          })
+        );
 
-      const newLocalLog: LocalLog = {
-        username: name,
-        createdAt: new Date(),
-      };
-      localLogs.push(newLocalLog);
-
-      setTimeout(async function () {
-        try {
-          if (valid) {
-            await client.composeMessage({
-              to: item.author,
-              subject: newConfig.title,
-              text: newConfig.pmBody,
-            });
-
-            console.log(
-              `${postCounter} : ${name} : ${display_name}  : ${newConfig.pmBody}`
-            );
-
-            didPm = true;
-            postCounter++;
-          }
-        } catch (err) {
-          console.error(`Error Occured ${err.message}`);
+        if (localLogs.length > 0 && valid) {
+          localLogs.forEach((log) => {
+            if (log.username === name) {
+              const msDifference = date.getTime() - log.createdAt.getTime();
+              const minuteDiff = msDifference / (1000 * 60);
+              if (minuteDiff < 60) {
+                //Dont RePM within 60Mins
+                valid = false;
+                return;
+              }
+            }
+          });
         }
 
-        const log: LogDto = {
-          _id: '0',
-          nodeId: id,
-          username: name,
-          message: newConfig.pmBody,
-          subreddit: display_name,
-          subId: item.id,
-          pm: didPm,
-        };
+        if (localLogs.length > 300) {
+          localLogs.splice(0, 150); //Removes first 150 Logs as they should be useless
+        }
 
-        Labmaker.Log.create(log);
-      }, newConfig.delay * 1000);
+        const newLocalLog: LocalLog = {
+          username: name,
+          createdAt: new Date(),
+        };
+        localLogs.push(newLocalLog);
+
+        setTimeout(async function () {
+          try {
+            if (valid) {
+              await client.composeMessage({
+                to: item.author,
+                subject: newConfig.title,
+                text: newConfig.pmBody,
+              });
+
+              console.log(
+                `${postCounter} : ${name} : ${display_name}  : ${newConfig.pmBody}`
+              );
+
+              didPm = true;
+              postCounter++;
+            }
+          } catch (err) {
+            console.error(`Error Occured ${err.message}`);
+          }
+
+          const log: LogDto = {
+            _id: '0',
+            nodeId: id,
+            username: name,
+            message: newConfig.pmBody,
+            subreddit: display_name,
+            subId: item.id,
+            pm: didPm,
+          };
+
+          Labmaker.Log.create(log);
+        }, newConfig.delay * 1000);
+      } catch (err) {
+        console.log(err);
+        console.log('Error Occured Continuing');
+      }
     });
   });
 }
