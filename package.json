@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev --respawn ./src/index.ts",
-    "start": "node ./lib/index.js"
+    "start": "node ./lib/index.js",
+    "startpm2": "pm2-runtime start ecosystem.config.js --env production"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "labmaker-api-wrapper": "^2.2.1",
+    "pm2": "^5.1.2",
     "snoostorm": "^1.5.2",
     "snoowrap": "^1.23.0"
   },
