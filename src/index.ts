@@ -13,23 +13,25 @@ dotenv.config();
       const config = configs[i];
       console.log(`${config._id}: ${config}`);
 
-      const client = new Snoowrap({
-        userAgent: config.userAgent,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        username: config.username,
-        password: config.password,
-      });
+      if (config.subreddits.length > 0) {
+        const client = new Snoowrap({
+          userAgent: config.userAgent,
+          clientId: config.clientId,
+          clientSecret: config.clientSecret,
+          username: config.username,
+          password: config.password,
+        });
 
-      client.config({
-        continueAfterRatelimitError: true,
-        requestDelay: 1001,
-        debug: false,
-        maxRetryAttempts: 3,
-      });
+        client.config({
+          continueAfterRatelimitError: true,
+          requestDelay: 1001,
+          debug: false,
+          maxRetryAttempts: 3,
+        });
 
-      createEvent(client, config);
-      await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+        createEvent(client, config);
+        await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+      }
     }
   } catch (err) {
     console.log(err.message);
