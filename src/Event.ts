@@ -9,14 +9,13 @@ type LocalLog = {
 };
 
 export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
-  const id = config._id;
+  const id = config.id;
   let localLogs: LocalLog[] = [];
   let submissionIds = [];
   let counter = 0;
   let postCounter = 0;
 
   submissionIds = await Labmaker.Log.getSubmissionIds(id);
-
   const delay = CalculateMinimumDelay(config.subreddits.length, 5) * 3; //Minimum Delay is too little to poll anyways
 
   config.subreddits.forEach((subreddit) => {
@@ -54,7 +53,6 @@ export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
         }
 
         let valid = true;
-
         const newConfig = await Labmaker.Reddit.getOne(id);
 
         if (newConfig.blockedUsers) {
@@ -125,7 +123,7 @@ export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
           }
 
           const log: LogDto = {
-            _id: '0',
+            id: 0,
             nodeId: id,
             username: name,
             message: newConfig.pmBody,

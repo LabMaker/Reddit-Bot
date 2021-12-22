@@ -11,7 +11,7 @@ dotenv.config();
     const configs = await Labmaker.Reddit.getAll();
     for (let i = 0; i < configs.length; i++) {
       const config = configs[i];
-      console.log(`${config._id}: ${config}`);
+      console.log(`${config.id}: ${config.username}`);
 
       if (config.subreddits.length > 0) {
         const client = new Snoowrap({
