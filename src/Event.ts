@@ -145,8 +145,8 @@ export async function createEvent(client: Snoowrap, config: RedditConfigDto) {
 //Snoowrap delays Posts every second anyways but this option allows us to not constantly call subreddits
 //Calculates the minimum amount of delay to send a GET request every second at Worst Case scenario
 function CalculateMinimumDelay(subredditLen: number, maxSubLimit: number) {
-  const MAX_RATELIMIT = 600 - subredditLen * maxSubLimit; //Incase we PM every subreddit with the amount of submissions we retreive
-  const MAX_RATE_MIN = MAX_RATELIMIT / 10; //600 Requests every 10 minutes
-  const delay = 60 / (MAX_RATE_MIN / subredditLen);
+  const maxRateLimit = 600 - subredditLen * maxSubLimit; //Incase we PM every subreddit with the amount of submissions we retreive
+  const maxRateMin = maxRateLimit / 10; //600 Requests every 10 minutes
+  const delay = 60 / (maxRateMin / subredditLen);
   return delay * 1000; //returns in MS
 }
