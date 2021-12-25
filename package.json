@@ -25,7 +25,7 @@
   "homepage": "https://github.com/DanyaalA/RedditBot#readme",
   "dependencies": {
     "dotenv": "^10.0.0",
-    "labmaker-api-wrapper": "2.3.0",
+    "labmaker-api-wrapper": "^2.5.7",
     "pm2": "^5.1.2",
     "snoostorm": "^1.5.2",
     "snoowrap": "^1.23.0"
