@@ -1,8 +1,6 @@
 import Snoowrap from 'snoowrap';
 import { Labmaker } from './APIHandler';
 import * as dotenv from 'dotenv';
-import { io } from 'socket.io-client';
-import { API } from 'labmaker-api-wrapper/lib/utils/BaseAPI';
 import APISocket from './APISocket';
 import { RedditConfigDto } from 'labmaker-api-wrapper';
 import { Client } from './Client';
@@ -59,11 +57,11 @@ function initClient(config: RedditConfigDto) {
   try {
     if (client && config.subreddits.length > 0) {
       console.log(`${config.id}: ${config.username}: Updated()`);
-      // client.updateClient(snooClient, config);
+      client.updateClient(snooClient, config);
     } else if (config.subreddits.length > 0) {
       console.log(`${config.id}: ${config.username}: Creating()`);
       const c = new Client(snooClient, config);
-      // c.createEvent();
+      c.createEvent();
       clients.push(c);
     }
   } catch (err) {
