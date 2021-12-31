@@ -1,3 +1,7 @@
+#Repo Depracted
+##This project is no longer maintained in this repo for the latest updates please go to [https://github.com/LabMaker/Labmaker](Labmaker)
+
+
 #Reddit Bot
 
 ##How To Install Using PM2
